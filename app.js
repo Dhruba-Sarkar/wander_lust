@@ -126,7 +126,7 @@ app.delete(
 );
 
 // Review Route
-// Post Route
+// Post Review Route
 app.post(
   "/listings/:id/reviews",
   validateReview,
@@ -143,6 +143,19 @@ app.post(
   }),
 );
 
+// Delete Review Route
+app.delete(
+  "/listings/:id/reviews/:reviewId",
+  wrapAsync(async (req, res) => {
+    let { id, reviewId } = req.params;
+
+    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+
+    res.redirect(`/listings/${id}`);
+  }),
+);
+
 app.all(/(.*)/, (req, res, next) => {
   next(new ExpressError(404, "Page Not Found"));
 });
@@ -154,5 +167,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(8080, () => {
-  console.log("serer is listing to port 8080");
+  console.log("server is listing to port 8080");
 });
